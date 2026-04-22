@@ -1,3 +1,4 @@
+#done purely by Manasa the integration (ONLY BY ME FIXED CODE)
 import machine
 import time
 import random
@@ -7,26 +8,25 @@ import ssd1306
 import network
 from esp import espnow
 
-# --- ESP-NOW CONFIG ---
-RECEIVER_MAC = b'\x70\x4b\xca\x6e\x8e\xe4' # Provided receiver MAC address
 
-# --- SERVO CONFIG (assuming sender controls two servos) ---
-SERVO_PIN_1 = 0 # Example pin for servo 1
-SERVO_PIN_2 = 2 # Example pin for servo 2
+RECEIVER_MAC = b'\x70\x4b\xca\x6e\x8e\xe4' 
 
-# Servo pulse width range (microseconds)
-# These values are typical for most servos, adjust if needed
+
+SERVO_PIN_1 = 0 
+SERVO_PIN_2 = 2 
+
+
 MIN_PULSE = 1000
 MAX_PULSE = 2000
 
-# Function to map a value (0-100) to a servo pulse width
+
 def map_value_to_pulse(value):
     return int(MIN_PULSE + (MAX_PULSE - MIN_PULSE) * (value / 100))
 
-# --- Animation Frames ---
+
 import idle, up, down, left, right, error
 
-# --- CONFIG ---
+#buttons brrr
 SCL_PIN = 18
 SDA_PIN = 19
 
@@ -45,9 +45,9 @@ LANE_WIDTH = 24
 HIT_LINE_Y = 43
 GOOD_WINDOW = 250
 
-DEBOUNCE_MS = 200  # debounce time for start/stop
+DEBOUNCE_MS = 200  # debounce time for start/stop ig
 
-# --- DISPLAYS ---
+
 i2c0 = machine.I2C(0, scl=machine.Pin(SCL_PIN), sda=machine.Pin(SDA_PIN))
 display = sh1106.SH1106_I2C(128, 64, i2c0)
 
@@ -57,7 +57,7 @@ anim_display = ssd1306.SSD1306_I2C(128, 64, i2c1)
 anim_buffer = bytearray(128 * 8)
 anim_fb = framebuf.FrameBuffer(anim_buffer, 128, 64, framebuf.MONO_VLSB)
 
-# --- BUTTONS ---
+#button
 pins = [
     machine.Pin(right_button, machine.Pin.IN, machine.Pin.PULL_UP),
     machine.Pin(down_button,  machine.Pin.IN, machine.Pin.PULL_UP),
@@ -67,8 +67,7 @@ pins = [
 
 start_pin = machine.Pin(start_button, machine.Pin.IN, machine.Pin.PULL_UP)
 stop_pin  = machine.Pin(stop_button,  machine.Pin.IN, machine.Pin.PULL_UP)
-
-# --- ARROWS ---
+#arrow bytearray :(
 arrow_left  = bytearray([0x18,0x3C,0x7E,0x18,0x18,0x18,0x00,0x00])
 arrow_right = bytearray([0x18,0x18,0x18,0x7E,0x3C,0x18,0x00,0x00])
 arrow_up    = bytearray([0x10,0x18,0x1C,0xFE,0x1C,0x18,0x10,0x00])
@@ -85,7 +84,7 @@ def draw_arrow(x, y, direction):
         fb = framebuf.FrameBuffer(arrow_right, 8, 8, framebuf.MONO_VLSB)
     display.blit(fb, x-4, y-4)
 
-# --- ANIMATION ---
+# main main
 def update_anim(state):
     if state == "up":
         data = up.bitmap_data
@@ -119,14 +118,14 @@ def generate_notes():
         })
     return notes
 
-# --- DEBOUNCE HELPER ---
+# debounce again
 def is_pressed(pin, last_time):
     now = time.ticks_ms()
     if not pin.value() and time.ticks_diff(now, last_time) > DEBOUNCE_MS:
         return True, now
     return False, last_time
 
-# --- ESP-NOW INITIALIZATION ---
+# esp now wifi thingy
 sta = network.WLAN(network.STA_IF)
 sta.active(True)
 sta.disconnect() # Ensure it's not connected to an AP
@@ -135,7 +134,7 @@ en = espnow.ESPNow()
 en.active(True)
 en.add_peer(RECEIVER_MAC)
 
-# --- SERVO INITIALIZATION ---
+#servo intialization
 servo1 = machine.PWM(machine.Pin(SERVO_PIN_1), freq=50)
 servo2 = machine.PWM(machine.Pin(SERVO_PIN_2), freq=50)
 
